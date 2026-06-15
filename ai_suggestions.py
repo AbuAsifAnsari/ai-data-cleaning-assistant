@@ -1,8 +1,8 @@
-import google.generativeai as genai
+from google import genai
 import streamlit as st
 
 
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
 def get_ai_suggestions(df):
     summary = f"""
@@ -57,7 +57,8 @@ Now analyze this dataset summary and give cleaning actions only:
 {summary}
 """
 
-    
-    model = genai.GenerativeModel("gemini-2.0-flash")
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
     return response.text
