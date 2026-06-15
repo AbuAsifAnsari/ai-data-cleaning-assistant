@@ -56,9 +56,12 @@ Now analyze this dataset summary and give cleaning actions only:
 
 {summary}
 """
-
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt
-    )
-    return response.text
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
+        return response.text
+    except Exception as e:
+        return f"Error: {str(e)}"
+    
