@@ -8,23 +8,22 @@ st.set_page_config(page_title="AI Data Cleaning Tool", page_icon="✨", layout="
 
 st.markdown("""
 <style>
-    .main { padding: 2rem; }
     .metric-card {
-        background: #f8f9fa;
         border-radius: 10px;
         padding: 1rem;
         text-align: center;
-        border: 0.5px solid #e0e0e0;
+        border: 0.5px solid rgba(128,128,128,0.2);
+        background: rgba(128,128,128,0.05);
     }
-    .metric-value { font-size: 28px; font-weight: 600; margin: 0; }
-    .metric-label { font-size: 13px; color: #888; margin: 4px 0 0; }
-    .section-header {
+    .metric-value {
+        font-size: 28px;
+        font-weight: 600;
+        margin: 0;
+    }
+    .metric-label {
         font-size: 13px;
-        font-weight: 500;
-        color: #888;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 8px;
+        opacity: 0.6;
+        margin: 4px 0 0;
     }
     .stButton > button {
         border-radius: 8px;
