@@ -28,13 +28,14 @@ if uploaded_file is not None:
     st.subheader("Duplicate Rows")
     st.write(df.duplicated().sum())
 
-    # AI Suggestions
+    # AI Suggestions - Button ke peeche
     st.subheader("AI Cleaning Suggestions")
-    suggestions = get_ai_suggestions(df)
-
-    for line in suggestions.split("\n"):
-        if line.strip() != "":
-            st.write("•", line)
+    if st.button("Get AI Suggestions"):
+        with st.spinner("Generating suggestions..."):
+            suggestions = get_ai_suggestions(df)
+            for line in suggestions.split("\n"):
+                if line.strip() != "":
+                    st.write("•", line)
 
     # Clean Data Button
     if st.button("Clean Data"):
@@ -43,13 +44,11 @@ if uploaded_file is not None:
         st.subheader("Cleaned Data")
         st.dataframe(cleaned_df)
 
-        # Cleaning Report
         report = generate_cleaning_report(df, cleaned_df)
 
         st.subheader("Cleaning Report")
         st.text(report)
 
-        # Download Cleaned Data
         csv = cleaned_df.to_csv(index=False).encode('utf-8')
         st.download_button(
             label="Download Cleaned CSV",
