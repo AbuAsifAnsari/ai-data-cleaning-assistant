@@ -58,6 +58,6 @@ Now analyze this dataset summary and give cleaning actions only:
 """
 
     
-    model = genai.GenerativeModel("gemini-1.5-flash-8b")
+    model = genai.GenerativeModel("gemini-2.0-flash")
     response = model.generate_content(prompt)
     return response.text
