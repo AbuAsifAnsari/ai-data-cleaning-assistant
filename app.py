@@ -4,55 +4,122 @@ from data_cleaning import clean_data
 from ai_suggestions import get_ai_suggestions
 from utils import clean_data, generate_cleaning_report
 
-st.title("AI Data Cleaning Tool")
+st.set_page_config(page_title="AI Data Cleaning Tool", page_icon="✨", layout="wide")
 
-# Upload file
-uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
+st.markdown("""
+<style>
+    .main { padding: 2rem; }
+    .metric-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        border: 0.5px solid #e0e0e0;
+    }
+    .metric-value { font-size: 28px; font-weight: 600; margin: 0; }
+    .metric-label { font-size: 13px; color: #888; margin: 4px 0 0; }
+    .section-header {
+        font-size: 13px;
+        font-weight: 500;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+    }
+    .stButton > button {
+        border-radius: 8px;
+        padding: 0.5rem 1.2rem;
+        font-size: 14px;
+    }
+    .stDownloadButton > button {
+        border-radius: 8px;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+col1, col2 = st.columns([1, 8])
+with col1:
+    st.markdown("# ✨")
+with col2:
+    st.markdown("# AI Data Cleaning Tool")
+    st.caption("Upload a CSV and let AI do the heavy lifting")
+
+st.divider()
+
+uploaded_file = st.file_uploader("Upload CSV File", type=["csv"], label_visibility="collapsed")
 
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
 
-    st.subheader("Original Data")
-    st.dataframe(df)
+    missing = int(df.isnull().sum().sum())
+    dupes = int(df.duplicated().sum())
 
-    # Data Summary
-    st.subheader("Dataset Summary")
-    st.write("Rows:", df.shape[0])
-    st.write("Columns:", df.shape[1])
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.markdown(f"""<div class="metric-card">
+            <p class="metric-value">{df.shape[0]:,}</p>
+            <p class="metric-label">🗂 Rows</p>
+        </div>""", unsafe_allow_html=True)
+    with c2:
+        st.markdown(f"""<div class="metric-card">
+            <p class="metric-value">{df.shape[1]}</p>
+            <p class="metric-label">📊 Columns</p>
+        </div>""", unsafe_allow_html=True)
+    with c3:
+        color = "#D85A30" if missing > 0 else "#1D9E75"
+        st.markdown(f"""<div class="metric-card">
+            <p class="metric-value" style="color:{color}">{missing}</p>
+            <p class="metric-label">⚠️ Missing values</p>
+        </div>""", unsafe_allow_html=True)
+    with c4:
+        color = "#BA7517" if dupes > 0 else "#1D9E75"
+        st.markdown(f"""<div class="metric-card">
+            <p class="metric-value" style="color:{color}">{dupes}</p>
+            <p class="metric-label">🔁 Duplicates</p>
+        </div>""", unsafe_allow_html=True)
 
-    # Missing Values
-    st.subheader("Missing Values")
-    st.write(df.isnull().sum())
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    # Duplicate Rows
-    st.subheader("Duplicate Rows")
-    st.write(df.duplicated().sum())
+    with st.expander("📄 Original Data", expanded=True):
+        st.dataframe(df, use_container_width=True)
 
-    # AI Suggestions - Button ke peeche
-    st.subheader("AI Cleaning Suggestions")
-    if st.button("Get AI Suggestions"):
-        with st.spinner("Generating suggestions..."):
+    with st.expander("🔍 Missing Values by Column"):
+        st.dataframe(df.isnull().sum().reset_index().rename(
+            columns={"index": "Column", 0: "Missing Count"}
+        ), use_container_width=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("### ✨ AI Cleaning Suggestions")
+
+    if st.button("Get AI Suggestions", type="primary"):
+        with st.spinner("Analyzing your dataset..."):
             suggestions = get_ai_suggestions(df)
+            st.success("Suggestions ready!")
             for line in suggestions.split("\n"):
                 if line.strip() != "":
-                    st.write("•", line)
+                    st.markdown(f"- {line.strip()}")
 
-    # Clean Data Button
-    if st.button("Clean Data"):
-        cleaned_df = clean_data(df)
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("### 🧹 Clean Data")
 
-        st.subheader("Cleaned Data")
-        st.dataframe(cleaned_df)
+    if st.button("Clean Data", type="secondary"):
+        with st.spinner("Cleaning your data..."):
+            cleaned_df = clean_data(df)
+
+        st.success("Data cleaned successfully!")
+
+        with st.expander("✅ Cleaned Data", expanded=True):
+            st.dataframe(cleaned_df, use_container_width=True)
 
         report = generate_cleaning_report(df, cleaned_df)
+        with st.expander("📋 Cleaning Report"):
+            st.text(report)
 
-        st.subheader("Cleaning Report")
-        st.text(report)
-
-        csv = cleaned_df.to_csv(index=False).encode('utf-8')
+        csv = cleaned_df.to_csv(index=False).encode("utf-8")
         st.download_button(
-            label="Download Cleaned CSV",
+            label="⬇️ Download Cleaned CSV",
             data=csv,
             file_name="cleaned_data.csv",
             mime="text/csv",
+            type="primary"
         )
