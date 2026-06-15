@@ -1,4 +1,8 @@
-import ollama
+import google.generativeai as genai
+import streamlit as st
+
+
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
 def get_ai_suggestions(df):
     summary = f"""
@@ -53,9 +57,6 @@ Now analyze this dataset summary and give cleaning actions only:
 {summary}
 """
 
-    response = ollama.chat(
-        model='gemma3:1b',
-        messages=[{'role': 'user', 'content': prompt}]
-    )
-
-    return response['message']['content']
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    response = model.generate_content(prompt)
+    return response.text
