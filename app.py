@@ -1,3 +1,4 @@
+import chardet
 import streamlit as st
 import pandas as pd
 from data_cleaning import clean_data
@@ -48,7 +49,11 @@ st.divider()
 uploaded_file = st.file_uploader("Upload CSV File", type=["csv"], label_visibility="collapsed")
 
 if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
+    
+    raw = uploaded_file.read()
+    encoding = chardet.detect(raw)['encoding']
+    uploaded_file.seek(0)
+    df = pd.read_csv(uploaded_file, encoding=encoding)
 
     missing = int(df.isnull().sum().sum())
     dupes = int(df.duplicated().sum())
